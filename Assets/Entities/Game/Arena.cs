@@ -30,7 +30,9 @@ namespace Entities.Game
         {
             foreach (var character in characters)
             {
-                Characters.Add(character.Setup(transform));
+                var _char = character.Setup(transform);
+                Characters.Add(_char);
+                _char.Item2.MoveTo(_char.Item2.startingPosition, MoveType.Teleport);
             }
 
             //Camera = GameObject.Find("Main Camera").GetComponent<Camera>();
