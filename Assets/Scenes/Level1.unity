@@ -380,8 +380,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 513e98fc102d417499b1c72b6ab52b47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridSizeX: 7
-  GridSizeY: 7
+  GridSizeX: 5
+  GridSizeY: 5
   SquarePrefab: {fileID: 6179139486246625378, guid: 0ed143dcefe2c974d96cc5d084ed571d,
     type: 3}
   Characters:

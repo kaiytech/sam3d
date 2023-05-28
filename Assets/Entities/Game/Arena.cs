@@ -18,7 +18,7 @@ namespace Entities.Game
         [NonSerialized] public Vector3? CameraTarget = null;
 
         [NonSerialized] public List<Tuple<GameObject, Square>> Squares = new();
-        private List<Tuple<GameObject, BaseCharacter>> Characters = new();
+        [NonSerialized] public List<Tuple<GameObject, BaseCharacter>> Characters = new();
 
         [NonSerialized] public RoundScheduler RoundScheduler;
         void Start()
@@ -58,8 +58,8 @@ namespace Entities.Game
 
         private void SquareOnClicked(object sender, Square.ClickedArgs e)
         {
-            
-            Debug.Log($"X: {e.Square.PosX}, Y: {e.Square.PosY}");
+            if (!Characters[0].Item2.CanMoveTo(new Vector2(e.Square.PosX, e.Square.PosY)))
+                return; // we cannot!
             CameraTarget = e.Square.transform.position;
             foreach (var square in Squares)
                 square.Item2.State = Square.EState.None;
@@ -98,12 +98,17 @@ namespace Entities.Game
                 var lerpPos = Vector3.Lerp(Camera.transform.position, targetPosition, t);
                 Camera.transform.position = new Vector3(cachedPos.x, cachedPos.y, lerpPos.z);
 
-                var cachedRot = Camera.transform.rotation; // for future use
+                //var cachedRot = Camera.transform.rotation; // for future use
                 var lerpRot = Quaternion.Slerp(Camera.transform.rotation, targetRotation, t);
                 Camera.transform.rotation = lerpRot.normalized;
             }
         
             done: ;
+            
+            foreach (var s in Squares.Select(square => square.Item2))
+            {
+                s.CanMoveTo = Characters[0].Item2.CanMoveTo(new Vector2(s.PosX, s.PosY));
+            }
         }
     }
 }

@@ -33,12 +33,16 @@ namespace Entities.Game
         public MeshRenderer MeshBottomRightRenderer;
         public MeshFilter MeshRightBottom;
         public MeshRenderer MeshRightBottomRenderer;
+        public MeshFilter MeshCenter;
+        public MeshRenderer MeshCenterRenderer;
 
         public BoxCollider ClickableCollider;
 
         public int PosX, PosY;
 
         public event EventHandler<ClickedArgs> Clicked;
+
+        public bool CanMoveTo = false;
         public class ClickedArgs : EventArgs
         {
             public Square Square { get; set; }
@@ -93,6 +97,9 @@ namespace Entities.Game
             var mat = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
             mat.color = new Color32(255, 255, 255, 255);
 
+            var mat2 = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+
+
             MeshLeftBottomRenderer = MeshLeftBottom.GetComponent<MeshRenderer>();
             MeshLeftBottomRenderer.sharedMaterial = mat;
             MeshBottomLeftRenderer = MeshBottomLeft.GetComponent<MeshRenderer>();
@@ -109,6 +116,8 @@ namespace Entities.Game
             MeshBottomRightRenderer.sharedMaterial = mat;
             MeshRightBottomRenderer = MeshRightBottom.GetComponent<MeshRenderer>();
             MeshRightBottomRenderer.sharedMaterial = mat;
+            MeshCenterRenderer = MeshCenter.GetComponent<MeshRenderer>();
+            MeshCenterRenderer.sharedMaterial = mat2;
         }
         
         void Update()
@@ -144,6 +153,17 @@ namespace Entities.Game
                 MeshTopRightRenderer.sharedMaterial.color = color;
                 MeshBottomRightRenderer.sharedMaterial.color = color;
                 MeshRightBottomRenderer.sharedMaterial.color = color;
+            }
+
+            if (CanMoveTo)
+            {
+                MeshCenterRenderer.sharedMaterial.color = Color.green;
+                MeshCenterRenderer.transform.localScale = new Vector3(2, 2, 2);
+            }
+            else
+            {
+                MeshCenterRenderer.sharedMaterial.color = Color.gray;
+                MeshCenterRenderer.transform.localScale = new Vector3(0, 0, 0);
             }
         }
     }

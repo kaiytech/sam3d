@@ -47,7 +47,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Kaiytech
   healthMax: 100
+  reach: 1
   startingPosition: {x: 0, y: 0}
+  reference:
+    prefab: {fileID: 0}
+    startingPosition: {x: 0, y: 0}
+    Team: 0
+    debugDrawColor: {r: 0, g: 0, b: 0, a: 0}
   b: 0
 --- !u!1 &7582468860569801509
 GameObject:
