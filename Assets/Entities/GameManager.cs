@@ -31,20 +31,31 @@ namespace Entities
         // Start is called before the first frame update
         void Start()
         {
+            Globals.GameManager = this;
+
+            transform.position = new Vector3(0, 0, 0);
+
+            Globals.UI = gameObject.AddComponent<UIController>();
+            Globals.UI.DisplayMode = UIController.EDisplayMode.Menu;
+        }
+
+        public void StartGame()
+        {
+            if (Globals.Camera is not null)
+                Destroy(Globals.Camera);
             GameObject cameraObject = new GameObject("Main Camera");
             cameraObject.tag = "MainCamera";
             Globals.Camera = cameraObject.AddComponent<Camera>();
-            Globals.Camera.transform.position = new Vector3(-8, 4, 3);
-            Globals.Camera.fieldOfView = 60.0f;
-        
-            transform.position = new Vector3(0, 0, 0);
+            Globals.Camera.transform.position = new Vector3(0, 10, 0);
+            Globals.Camera.fieldOfView = 80.0f;
+            Globals.Camera.clearFlags = CameraClearFlags.SolidColor;
+            Globals.Camera.backgroundColor = Color.black;
+            if (Globals.Arena is not null)
+                Destroy(Globals.Arena);
             Globals.Arena = gameObject.AddComponent<Arena>();
             Globals.Arena!.name = "Arena";
             Globals.Arena!.Setup(GridSizeX, GridSizeY, SquarePrefab, Characters);
-
-            Globals.UIController = gameObject.AddComponent<UIController>();
-
-            gameObject.AddComponent<UIController>();
+            Globals.Arena!.StartGame();
         }
     
 #if UNITY_EDITOR

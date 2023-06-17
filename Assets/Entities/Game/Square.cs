@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using TMPro;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
@@ -15,8 +19,29 @@ namespace Entities.Game
             Selected
         }
 
+        public enum EFieldType
+        {
+            Default,
+            Marked,
+            DugUp
+        }
+
+        public enum EUndergroundType
+        {
+            None,
+            Mined
+        }
+
+        public GameObject TextPrefab;
+        private TextMeshPro _text;
+
+        public EFieldType Field;
+        public EUndergroundType Underground;
+
         public EState State;
 
+        public Renderer Renderer;
+        
         public MeshFilter MeshLeftBottom;
         public MeshRenderer MeshLeftBottomRenderer;
         public MeshFilter MeshBottomLeft;
@@ -40,7 +65,29 @@ namespace Entities.Game
 
         public int PosX, PosY;
 
+        private int _number = -1;
+
+        public int Number
+        {
+            get
+            {
+                if (_number is -1)
+                    _number = GetNumber();
+                return _number;
+            }
+        }
+
+        public void Reset()
+        {
+            Field = Square.EFieldType.Default;
+            Underground = Square.EUndergroundType.None;
+            _number = 0;
+        }
+        
+        
+
         public event EventHandler<ClickedArgs> Clicked;
+        public event EventHandler<ClickedArgs> ClickedRight; 
 
         public bool CanMoveTo = false;
         public class ClickedArgs : EventArgs
@@ -53,6 +100,7 @@ namespace Entities.Game
         void Start()
         {
             ClickableCollider = GetComponent<BoxCollider>();
+            Renderer = this.AddComponent<Renderer>();
         }
 
         public void Setup(int posX, int posY)
@@ -122,8 +170,13 @@ namespace Entities.Game
         
         void Update()
         {
-            var camera = GameObject.Find("Main Camera");
-            var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+            if (_text is null)
+            {
+                _text = TextPrefab.GetComponent<TextMeshPro>();
+                _text.text = "";
+            }
+            
+            var ray = Globals.Camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitData;
             if (ClickableCollider.Raycast(ray, out hitData, 1000))
             {
@@ -131,6 +184,8 @@ namespace Entities.Game
                     State = EState.Highlighted;
                 if (Input.GetMouseButtonUp(0))
                     Clicked?.Invoke(this, new ClickedArgs() { Square = this });
+                if (Input.GetMouseButtonUp(1))
+                    ClickedRight?.Invoke(this, new ClickedArgs() {Square = this});
             }
             else
                 if (State == EState.Highlighted)
@@ -142,6 +197,65 @@ namespace Entities.Game
                 EState.Selected => new Color32(255, 165, 0, 255),
                 _ => new Color32(255, 255, 255, 255)
             };
+            
+            MeshCenterRenderer.transform.localScale = new Vector3(2, 2, 2);
+
+            if (!(Field == EFieldType.DugUp && Underground != EUndergroundType.Mined))
+                _text.text = "";
+
+            if (Field == EFieldType.Default)
+                color = new Color32(255, 255, 255, 255);
+            else if (Field == EFieldType.Marked)
+                color = new Color32(0, 0, 255, 255);
+            else if (Underground == EUndergroundType.Mined)
+                color = new Color32(0, 0, 0, 255);
+            else
+            {
+                switch (Number)
+                {
+                    default:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 255, 255, 255);
+                        break;
+                    case 0:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 200, 200, 255);
+                        break;
+                    case 1:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 180, 180, 255);
+                        _text.color = Color.blue;
+                        break;
+                    case 2:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 170, 170, 255);
+                        _text.color = Color.green;
+                        break;
+                    case 3:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 140, 140, 255);
+                        _text.color = Color.yellow;
+                        break;
+                    case 4:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 120, 120, 255);
+                        _text.color = Color.magenta;
+                        break;
+                    case 5:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 100, 100, 255);
+                        _text.color = Color.red;
+                        break;
+                    case 6:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 80, 80, 255);
+                        _text.color = new Color32(255, 80, 80, 255);
+                        break;
+                    case 7:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 60, 60, 255);
+                        _text.color = new Color32(255, 140, 0, 255);
+                        break;
+                    case 8:
+                        MeshCenterRenderer.sharedMaterial.color = new Color32(255, 0, 0, 255);
+                        _text.color = Color.gray;
+                        break;
+                }
+
+                if (Number > 0)
+                    _text.text = Number.ToString();
+            }
 
             if (MeshLeftBottomRenderer.sharedMaterial.color != color)
             {
@@ -154,17 +268,161 @@ namespace Entities.Game
                 MeshBottomRightRenderer.sharedMaterial.color = color;
                 MeshRightBottomRenderer.sharedMaterial.color = color;
             }
+        }
 
-            if (CanMoveTo)
+        private int GetNumber()
+        {
+            var n = 0;
+            if (GetSideSquare(ESide.TopLeft) is not null &&
+                GetSideSquare(ESide.TopLeft).Underground == EUndergroundType.Mined)
+                n++;
+            if (GetSideSquare(ESide.Top) is not null &&
+                GetSideSquare(ESide.Top).Underground == EUndergroundType.Mined)
+                n++;
+            if (GetSideSquare(ESide.TopRight) is not null &&
+                GetSideSquare(ESide.TopRight).Underground == EUndergroundType.Mined)
+                n++;
+            if (GetSideSquare(ESide.Left) is not null &&
+                GetSideSquare(ESide.Left).Underground == EUndergroundType.Mined)
+                n++;
+            if (GetSideSquare(ESide.Right) is not null &&
+                GetSideSquare(ESide.Right).Underground == EUndergroundType.Mined)
+                n++;
+            if (GetSideSquare(ESide.BottomLeft) is not null &&
+                GetSideSquare(ESide.BottomLeft).Underground == EUndergroundType.Mined)
+                n++;
+            if (GetSideSquare(ESide.Bottom) is not null &&
+                GetSideSquare(ESide.Bottom).Underground == EUndergroundType.Mined)
+                n++;
+            if (GetSideSquare(ESide.BottomRight) is not null &&
+                GetSideSquare(ESide.BottomRight).Underground == EUndergroundType.Mined)
+                n++;
+            return n;
+        }
+
+        public enum ESide
+        {
+            TopLeft,
+            Top,
+            TopRight,
+            Left,
+            Right,
+            BottomLeft,
+            Bottom,
+            BottomRight
+        }
+        
+        public Square GetSideSquare(ESide side)
+        {
+            switch (side)
             {
-                MeshCenterRenderer.sharedMaterial.color = Color.green;
-                MeshCenterRenderer.transform.localScale = new Vector3(2, 2, 2);
+                case ESide.TopLeft:
+                    return Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX + 1 && i.Item2.PosY == PosY + 1)?.Item2;
+                case ESide.Top:
+                    return Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX && i.Item2.PosY == PosY + 1)?.Item2;
+                case ESide.TopRight:
+                    return Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX - 1 && i.Item2.PosY == PosY + 1)?.Item2;
+                case ESide.Left:
+                    return Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX + 1 && i.Item2.PosY == PosY)?.Item2;
+                case ESide.Right:
+                    return Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX - 1 && i.Item2.PosY == PosY)?.Item2;
+                case ESide.BottomLeft:
+                    return Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX + 1 && i.Item2.PosY == PosY - 1)?.Item2;
+                case ESide.Bottom:
+                    return Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX && i.Item2.PosY == PosY - 1)?.Item2;
+                case ESide.BottomRight:
+                    return Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX - 1 && i.Item2.PosY == PosY - 1)?.Item2;
             }
-            else
+
+            return null;
+        }
+
+        public List<Square> GetAllSideSquares()
+        {
+            #nullable enable
+            return new List<Square?>
             {
-                MeshCenterRenderer.sharedMaterial.color = Color.gray;
-                MeshCenterRenderer.transform.localScale = new Vector3(0, 0, 0);
+                Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX + 1 && i.Item2.PosY == PosY + 1)?.Item2,
+                Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX && i.Item2.PosY == PosY + 1)?.Item2,
+                Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX - 1 && i.Item2.PosY == PosY + 1)?.Item2,
+                Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX + 1 && i.Item2.PosY == PosY)?.Item2,
+                Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX - 1 && i.Item2.PosY == PosY)?.Item2,
+                Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX + 1 && i.Item2.PosY == PosY - 1)?.Item2,
+                Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX && i.Item2.PosY == PosY - 1)?.Item2,
+                Globals.Arena.Squares.FirstOrDefault(i => i.Item2.PosX == PosX - 1 && i.Item2.PosY == PosY - 1)?.Item2
+            }.Where(square => square != null).ToList();;
+            #nullable restore
+        }
+
+        public struct DigResult
+        {
+            public bool HitMine;
+        }
+
+        public DigResult Dig(bool spread = true)
+        {
+            var result = _Dig();
+            if (!result.HitMine && Number is 0 or 1 && spread)
+                Spread(true);
+            
+            // if all bombs around are marked, attempt to dig every field around
+            var sideSquares = GetAllSideSquares();
+            if (!result.HitMine && sideSquares.Count(s => s.Field == EFieldType.Marked) == Number)
+                foreach (var sideSquare in sideSquares)
+                {
+                    if (sideSquare.Underground == EUndergroundType.Mined && sideSquare.Field != EFieldType.Marked)
+                        result.HitMine = true;
+                    if (sideSquare.Field != EFieldType.Marked)
+                        sideSquare.Field = EFieldType.DugUp;
+                }
+
+            return result;
+        }
+
+        public void Spread(bool force = false)
+        {
+            if (Underground == EUndergroundType.Mined)
+                return;
+            if (Field == EFieldType.DugUp && !force)
+                return;
+            var sideSquares = GetAllSideSquares();
+            if (sideSquares.All(s => s.Number != 0))
+                return;
+            Field = EFieldType.DugUp;
+            foreach (var sideSquare in sideSquares)
+                sideSquare.Spread();
+        }
+
+        private DigResult _Dig()
+        {
+            if (Field is EFieldType.Marked or EFieldType.DugUp)
+                return new DigResult() { HitMine = false };
+            
+            Field = EFieldType.DugUp;
+
+            if (Underground == EUndergroundType.Mined)
+                return new DigResult() { HitMine = true };
+            
+            return new DigResult() { HitMine = false };
+        }
+
+        public struct MarkResult
+        {
+            public bool Marked;
+            public bool DeMarked;
+        }
+        
+        public MarkResult Mark()
+        {
+            if (Field is EFieldType.DugUp)
+                return new MarkResult() {Marked = false, DeMarked = false};
+            if (Field is EFieldType.Default)
+            {
+                Field = EFieldType.Marked;
+                return new MarkResult() { Marked = true, DeMarked = false };
             }
+            Field = EFieldType.Default;
+            return new MarkResult() { Marked = false, DeMarked = true };
         }
     }
 }

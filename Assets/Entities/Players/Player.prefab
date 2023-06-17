@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Kaiytech
   healthMax: 100
-  reach: 1
+  reach: 3
   startingPosition: {x: 0, y: 0}
   reference:
     prefab: {fileID: 0}

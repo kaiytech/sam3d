@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Entities.Game
 {
@@ -8,20 +11,55 @@ namespace Entities.Game
         private Arena _arena;
 
         private List<Round> _rounds;
+
+        private Random _random = new Random();
+
+        private Square _ignoredSquare;
+
+        public bool GameLost = false;
         
         public RoundScheduler(Arena arena)
         {
             _arena = arena;
         }
 
-        public void Begin()
+        public void SetIgnore(Square square)
         {
-            
+            _ignoredSquare = square;
         }
 
-        public void NewRound()
+        public void Begin()
         {
-            //_rounds.Add(new Round(_arena.Characters));
+            //Clear();
+            SetupBombs();
+        }
+
+        private void Clear()
+        {
+            foreach (var square in _arena.Squares)
+                square.Item2.Reset();
+        }
+
+        private void SetupBombs()
+        {
+            for (int i = 0; i < 30;)
+            {
+                var r = _arena.Squares[_random.Next(0, _arena.Squares.Count)].Item2;
+                if (r.Underground == Square.EUndergroundType.Mined || r == _ignoredSquare)
+                    continue;
+                r.Underground = Square.EUndergroundType.Mined;
+                i++;
+            }
+        }
+
+        public void LoseGame()
+        {
+            foreach (var (_, item2) in _arena.Squares.Where(s => s.Item2.Underground == Square.EUndergroundType.Mined))
+            {
+                item2.Field = Square.EFieldType.DugUp;
+            }
+
+            GameLost = true;
         }
     }
 }

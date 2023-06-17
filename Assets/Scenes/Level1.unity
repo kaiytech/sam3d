@@ -380,23 +380,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 513e98fc102d417499b1c72b6ab52b47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridSizeX: 5
-  GridSizeY: 5
+  GridSizeX: 12
+  GridSizeY: 12
   SquarePrefab: {fileID: 6179139486246625378, guid: 0ed143dcefe2c974d96cc5d084ed571d,
     type: 3}
-  Characters:
-  - prefab: {fileID: 604314553484970865, guid: 384d66ccb9f919740b3e530ade58fd67, type: 3}
-    startingPosition: {x: 2, y: 2}
-    Team: 0
-    debugDrawColor: {r: 0.048949808, g: 0.9433962, b: 0.114432015, a: 1}
-  - prefab: {fileID: 604314553484970865, guid: 384d66ccb9f919740b3e530ade58fd67, type: 3}
-    startingPosition: {x: 4, y: 4}
-    Team: 0
-    debugDrawColor: {r: 0.94509804, g: 0.04705882, b: 0.09011619, a: 1}
-  - prefab: {fileID: 604314553484970865, guid: 384d66ccb9f919740b3e530ade58fd67, type: 3}
-    startingPosition: {x: 3, y: 1}
-    Team: 1
-    debugDrawColor: {r: 0.04705882, g: 0.1645684, b: 0.94509804, a: 1}
+  Characters: []
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
