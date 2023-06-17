@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -36,3 +37,4 @@ namespace Entities.Helpers.EditorUI
         }
     }
 }
+#endif

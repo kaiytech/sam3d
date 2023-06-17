@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Entities.Game;
 using Entities.Game.UI;
-using Entities.Helpers.EditorUI;
 using Entities.Players;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
@@ -25,8 +24,6 @@ namespace Entities
         [SerializeField] public GameObject SquarePrefab;
 
         [SerializeField] public List<CharacterReference> Characters;
-
-        [NonSerialized] public WarningLabel WarningLabel;
 
         // Start is called before the first frame update
         void Start()

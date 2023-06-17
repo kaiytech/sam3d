@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Entities.Game.UI
 {
@@ -52,6 +53,8 @@ namespace Entities.Game.UI
             }
             else if (DisplayMode == EDisplayMode.Menu)
             {
+                GUI.backgroundColor = Color.black;
+                GUI.Box(new Rect(0, 0, Screen.width, Screen.height), GUIContent.none);
                 GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height));
                 GUILayout.Label("FairSweeper", _logoGuiStyle);
                 if (GUILayout.Button("Start"))
@@ -66,8 +69,8 @@ namespace Entities.Game.UI
                 GUILayout.BeginArea(new Rect(0, 0, 300, 300));
                 if (GUILayout.Button("Restart"))
                 {
-                    Globals.GameManager.StartGame();
-                    DisplayMode = EDisplayMode.Game;
+                    SceneManager.LoadScene("Scenes/Boot", LoadSceneMode.Single);
+                    DisplayMode = EDisplayMode.Menu;
                 }
 
                 GUILayout.EndArea();

@@ -42,7 +42,7 @@ namespace Entities.Game
 
         private void SetupBombs()
         {
-            for (int i = 0; i < 30;)
+            for (int i = 0; i < 300;)
             {
                 var r = _arena.Squares[_random.Next(0, _arena.Squares.Count)].Item2;
                 if (r.Underground == Square.EUndergroundType.Mined || r == _ignoredSquare)

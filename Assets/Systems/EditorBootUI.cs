@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -71,3 +72,4 @@ namespace Systems
         }
     }
 }
+#endif
