@@ -740,6 +740,7 @@ MonoBehaviour:
   MeshRightBottomRenderer: {fileID: 0}
   MeshCenter: {fileID: 5868642585095725298}
   MeshCenterRenderer: {fileID: 0}
+  SquareMaterial: {fileID: 2100000, guid: 802394cf5ee9c1a45b009a6b94c1dd05, type: 2}
   ClickableCollider: {fileID: 0}
   PosX: 0
   PosY: 0

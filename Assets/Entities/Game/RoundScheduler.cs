@@ -10,7 +10,7 @@ namespace Entities.Game
     {
         private Arena _arena;
 
-        private List<Round> _rounds;
+        private int _bombs = 10;
 
         private Random _random = new Random();
 
@@ -28,6 +28,11 @@ namespace Entities.Game
             _ignoredSquare = square;
         }
 
+        public void SetBombs(int bombs)
+        {
+            _bombs = bombs;
+        }
+
         public void Begin()
         {
             //Clear();
@@ -42,7 +47,7 @@ namespace Entities.Game
 
         private void SetupBombs()
         {
-            for (int i = 0; i < 300;)
+            for (int i = 0; i < _bombs;)
             {
                 var r = _arena.Squares[_random.Next(0, _arena.Squares.Count)].Item2;
                 if (r.Underground == Square.EUndergroundType.Mined || r == _ignoredSquare)
@@ -60,6 +65,17 @@ namespace Entities.Game
             }
 
             GameLost = true;
+        }
+        
+        public void WinGame()
+        {
+            foreach (var (_, item2) in _arena.Squares.Where(s => s.Item2.Underground == Square.EUndergroundType.Mined))
+            {
+                item2.Field = Square.EFieldType.DugUp;
+            }
+
+            GameLost = true;
+            Globals.UI.WonGame = true;
         }
     }
 }

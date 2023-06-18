@@ -61,6 +61,8 @@ namespace Entities.Game
         public MeshFilter MeshCenter;
         public MeshRenderer MeshCenterRenderer;
 
+        public Material SquareMaterial;
+
         public BoxCollider ClickableCollider;
 
         public int PosX, PosY;
@@ -142,10 +144,10 @@ namespace Entities.Game
             var pos1 = 2 * posX;
             var pos2 = 2 * posY;
             transform.localPosition = new Vector3(pos1, 0.02f, pos2);
-            var mat = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+            var mat = new Material(SquareMaterial);
             mat.color = new Color32(255, 255, 255, 255);
 
-            var mat2 = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+            var mat2 = new Material(SquareMaterial);
 
 
             MeshLeftBottomRenderer = MeshLeftBottom.GetComponent<MeshRenderer>();

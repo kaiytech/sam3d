@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Entities.Game.UI;
-using Entities.Helpers.Enums;
-using Entities.Players;
 using UnityEngine;
 
 namespace Entities.Game
@@ -11,15 +9,12 @@ namespace Entities.Game
     public class Arena : MonoBehaviour
     {
         // Start is called before the first frame update
-
-        [NonSerialized] public int GridSizeX = 0;
-        [NonSerialized] public int GridSizeY = 0;
-
         [NonSerialized] public Camera Camera;
         [NonSerialized] public Vector3? CameraTarget = null;
 
         [NonSerialized] public List<Tuple<GameObject, Square>> Squares = new();
-        [NonSerialized] public List<Tuple<GameObject, BaseCharacter>> Characters = new();
+
+        [NonSerialized] public int Bombs;
 
         [NonSerialized] public RoundScheduler RoundScheduler;
 
@@ -30,19 +25,13 @@ namespace Entities.Game
             _gameRunning = true;
         }
 
-        public void Setup(int gridSizeX, int gridSizeY, GameObject squarePrefab, List<CharacterReference> characters)
+        public void Setup(int gridSizeX, int gridSizeY, int bombs, GameObject squarePrefab)
         {
+            Bombs = bombs;
             Squares.Clear();
             RoundScheduler = null;
             Globals.UI.NumOfBombs = 0;
             Globals.UI.NumOfFlags = 0;
-            
-            foreach (var character in characters)
-            {
-                var _char = character.Setup(transform);
-                Characters.Add(_char);
-                _char.Item2.MoveTo(_char.Item2.startingPosition, MoveType.Teleport);
-            }
 
             //Camera = GameObject.Find("Main Camera").GetComponent<Camera>();
             Camera = Globals.Camera;
@@ -69,6 +58,7 @@ namespace Entities.Game
             {
                 RoundScheduler = new RoundScheduler(this);
                 RoundScheduler.SetIgnore(e.Square);
+                RoundScheduler.SetBombs(Bombs);
                 RoundScheduler.Begin();
                 Globals.UI.NumOfBombs = Squares.Count(s => s.Item2.Underground == Square.EUndergroundType.Mined);
                 Globals.UI.NumOfFlags = 0;
@@ -81,6 +71,20 @@ namespace Entities.Game
             {
                 RoundScheduler.LoseGame();
                 Globals.UI.DisplayMode = UIController.EDisplayMode.Leaderboard;
+            }
+
+            var mined = Squares.Where(s => s.Item2.Underground == Square.EUndergroundType.Mined);
+            var marked = Squares.Where(s => s.Item2.Field == Square.EFieldType.Marked);
+            var unmarked = Squares.Where(s => s.Item2.Field == Square.EFieldType.Default);
+            if (mined.Count() == marked.Count() || mined.Count() == marked.Count() + unmarked.Count())
+            {
+                if (mined
+                        .Count(s => s.Item2.Underground == Square.EUndergroundType.Mined &&
+                                    (s.Item2.Field == Square.EFieldType.Default || s.Item2.Field == Square.EFieldType.Marked)) == mined.Count())
+                {
+                    RoundScheduler.WinGame();
+                    Globals.UI.DisplayMode = UIController.EDisplayMode.Leaderboard;
+                }
             }
         }
 
