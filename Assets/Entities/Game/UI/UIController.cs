@@ -44,8 +44,8 @@ namespace Entities.Game.UI
             _regularTextGuiStyle.alignment = TextAnchor.MiddleCenter;
 
             _logoGuiStyle = new GUIStyle();
-            _logoGuiStyle.normal.textColor = Color.magenta;
-            _logoGuiStyle.fontSize = 42;
+            _logoGuiStyle.normal.textColor = Color.green;
+            _logoGuiStyle.fontSize = 46;
             _logoGuiStyle.alignment = TextAnchor.MiddleCenter;
             _logoGuiStyle.normal.background = _texture;
 
@@ -72,7 +72,7 @@ namespace Entities.Game.UI
                 GUI.backgroundColor = Color.black;
                 GUI.Box(new Rect(0, 0, Screen.width, Screen.height), GUIContent.none);
                 GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height));
-                GUILayout.Label("FairSweeper", _logoGuiStyle);
+                GUILayout.Label("FairSweeper, cruel-but fair", _logoGuiStyle);
                 GUILayout.EndArea();
                 GUILayout.BeginArea(new Rect(0, 100, Screen.width, 200));
                 GUILayout.Label("X:", _regularTextGuiStyle);
@@ -85,7 +85,7 @@ namespace Entities.Game.UI
 
                 if (IsOk())
                 {
-                    if (GUILayout.Button("Start", _logoGuiStyle))
+                    if (GUILayout.Button("Click to Start", _logoGuiStyle))
                     {
                         Globals.GameManager.StartGame(int.Parse(X), int.Parse(Y), int.Parse(Bombs));
                         DisplayMode = EDisplayMode.Game;
@@ -97,7 +97,7 @@ namespace Entities.Game.UI
             else
             {
                 GUILayout.BeginArea(new Rect(0, 0, Screen.width, 300));
-                var txt = WonGame ? "You win! Play again." : "You lose! Restart.";
+                var txt = WonGame ? "You win! Click to play again." : "You lose! Click to restart.";
                 if (GUILayout.Button(txt, _logoGuiStyle))
                 {
                     SceneManager.LoadScene("Scenes/Boot", LoadSceneMode.Single);
